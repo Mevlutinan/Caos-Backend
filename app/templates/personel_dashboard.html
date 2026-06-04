@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panelim — CAOS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family:'Inter',sans-serif; background:#0d1117; color:#e6edf3; min-height:100vh; }
+
+    /* Topbar */
+    .topbar {
+      background:rgba(22,27,42,.95); backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,.07);
+      padding:.8rem 1.5rem; display:flex; align-items:center;
+      justify-content:space-between; position:sticky; top:0; z-index:200;
+    }
+    .topbar-brand { font-weight:700; font-size:1.1rem;
+      background:linear-gradient(90deg,#63b3ed,#a78bfa);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-decoration:none; }
+    .btn-cikis { background:rgba(248,81,73,.1); border:1px solid rgba(248,81,73,.25);
+      color:#f85149; border-radius:8px; padding:.3rem .9rem; font-size:.82rem;
+      font-weight:600; text-decoration:none; transition:background .2s; }
+    .btn-cikis:hover { background:rgba(248,81,73,.2); color:#f85149; }
+    .btn-cizelge { background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.2);
+      color:#a78bfa; border-radius:8px; padding:.3rem .9rem; font-size:.82rem;
+      font-weight:600; text-decoration:none; transition:background .2s; }
+    .btn-cizelge:hover { background:rgba(167,139,250,.2); color:#a78bfa; }
+
+    .page-wrap { max-width:900px; margin:0 auto; padding:1.5rem 1.2rem; }
+
+    /* Hoş Geldin Kartı */
+    .hosgeldin {
+      background:linear-gradient(135deg,#1a1f2e,#1e2640);
+      border:1px solid rgba(99,179,237,.15);
+      border-radius:20px; padding:1.5rem 2rem; margin-bottom:2rem;
+      display:flex; align-items:center; gap:1.2rem;
+    }
+    .hg-avatar {
+      width:60px; height:60px; border-radius:50%;
+      background:linear-gradient(135deg,#63b3ed,#4f46e5);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.6rem; font-weight:800; color:#fff; flex-shrink:0;
+    }
+    .hg-avatar.av-Bar      { background:linear-gradient(135deg,#34d399,#059669); }
+    .hg-avatar.av-Salon    { background:linear-gradient(135deg,#63b3ed,#4f46e5); }
+    .hg-avatar.av-Mutfak   { background:linear-gradient(135deg,#fb923c,#ea580c); }
+    .hg-avatar.av-Isletmeci{ background:linear-gradient(135deg,#a78bfa,#7c3aed); }
+    .hg-isim  { font-size:1.3rem; font-weight:800; margin-bottom:.2rem; }
+    .hg-rol   { font-size:.78rem; color:#8b949e; }
+    .rol-chip {
+      display:inline-block; border-radius:20px; padding:.15rem .8rem;
+      font-size:.72rem; font-weight:700; margin-left:.5rem;
+    }
+    .rc-Bar      { background:rgba(52,211,153,.15); color:#34d399; border:1px solid rgba(52,211,153,.3); }
+    .rc-Salon    { background:rgba(99,179,237,.15); color:#63b3ed; border:1px solid rgba(99,179,237,.3); }
+    .rc-Mutfak   { background:rgba(251,146,60,.15); color:#fb923c; border:1px solid rgba(251,146,60,.3); }
+    .rc-Isletmeci{ background:rgba(167,139,250,.15);color:#a78bfa; border:1px solid rgba(167,139,250,.3); }
+
+    /* Bölüm Kartları */
+    .section-kart {
+      background:rgba(22,27,42,.8); border:1px solid rgba(255,255,255,.08);
+      border-radius:16px; margin-bottom:1.5rem; overflow:hidden;
+      box-shadow:0 8px 32px rgba(0,0,0,.25);
+    }
+    .kart-baslik {
+      padding:.85rem 1.4rem; border-bottom:1px solid rgba(255,255,255,.07);
+      display:flex; align-items:center; gap:.6rem; font-size:.92rem; font-weight:700;
+    }
+    .kart-ici { padding:1.2rem 1.4rem; }
+
+    /* Bu haftanın vardiyaları */
+    .vardiya-satir {
+      display:flex; align-items:center; gap:.8rem; padding:.7rem .2rem;
+      border-bottom:1px solid rgba(255,255,255,.04);
+    }
+    .vardiya-satir:last-child { border-bottom:none; }
+    .v-gun { font-size:.8rem; color:#8b949e; min-width:90px; }
+    .v-tarih { font-size:.7rem; color:#484f58; }
+    .v-chip {
+      padding:.25rem .9rem; border-radius:20px; font-size:.78rem;
+      font-weight:700; white-space:nowrap;
+    }
+    .v-Sabahçı  { background:rgba(99,179,237,.15);  color:#63b3ed;  border:1px solid rgba(99,179,237,.3); }
+    .v-Aracı    { background:rgba(167,139,250,.15); color:#a78bfa;  border:1px solid rgba(167,139,250,.3);}
+    .v-Kapanış  { background:rgba(249,115,22,.15);  color:#fb923c;  border:1px solid rgba(249,115,22,.3); }
+    .v-Esnek    { background:rgba(52,211,153,.15);  color:#34d399;  border:1px solid rgba(52,211,153,.3); }
+    .v-OFF      { background:rgba(72,79,88,.15);    color:#6e7681;  border:1px solid rgba(72,79,88,.3);   }
+    .v-Üİ       { background:rgba(234,179,8,.15);   color:#ca8a04;  border:1px solid rgba(234,179,8,.3);  }
+    .v-BT       { background:rgba(167,139,250,.15); color:#a78bfa;  border:1px solid rgba(167,139,250,.3);}
+    .v-bos { color:#2d333b; font-size:.8rem; font-style:italic; }
+
+    /* ── Haftalık Uygunluk Formu (Yatay) ── */
+    .uygunluk-grid {
+      display: flex; flex-wrap: nowrap; gap: 1rem;
+      overflow-x: auto; overflow-y: hidden; padding-bottom: 15px;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent;
+      -webkit-overflow-scrolling: touch; /* Mobil ivmeli kaydırma */
+    }
+    .uygunluk-grid::-webkit-scrollbar { height: 6px; }
+    .uygunluk-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 10px; }
+    
+    .gun-sutun {
+      flex: 0 0 auto; width: 280px; /* Asla ezilmez ve daralmaz */
+      background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05);
+      border-radius: 12px; padding: .8rem;
+      display: flex; flex-direction: column; gap: .6rem;
+    }
+
+    .gun-sol { min-width:88px; flex-shrink:0; }
+    .gun-baslik { text-align:center; padding-bottom:.5rem; border-bottom:1px solid rgba(255,255,255,.05); }
+    .gun-ad  { font-size:.85rem; font-weight:700; color:#c9d1d9; display:block; }
+    .gun-tar { font-size:.7rem; color:#8b949e; }
+    .bugun-etiket {
+      display:inline-block; background:rgba(99,179,237,.15); color:#63b3ed;
+      border:1px solid rgba(99,179,237,.3); border-radius:10px;
+      padding:.1rem .5rem; font-size:.6rem; font-weight:700; margin-top:.3rem;
+    }
+
+    .uygunluk-select {
+      width:100%; border-radius:8px; padding:.45rem .5rem;
+      font-size:.78rem; font-weight:600; cursor:pointer;
+      border:1px solid rgba(255,255,255,.1); transition:all .18s;
+      background:rgba(52,211,153,.07); color:#34d399;
+      appearance:auto; text-align:center;
+    }
+    .uygunluk-select:focus { outline:none; }
+    .uygunluk-select option { background:#1a1f2e; color:#e6edf3; }
+
+    /* Renk sınıfları — JS tarafından atanır */
+    .su-farketmez { background:rgba(52,211,153,.07); color:#34d399; border-color:rgba(52,211,153,.2); }
+    .su-sabah     { background:rgba(99,179,237,.08); color:#63b3ed; border-color:rgba(99,179,237,.25); }
+    .su-ara       { background:rgba(167,139,250,.08);color:#a78bfa; border-color:rgba(167,139,250,.25); }
+    .su-kapanis   { background:rgba(251,146,60,.08); color:#fb923c; border-color:rgba(251,146,60,.25); }
+    .su-off       { background:rgba(248,81,73,.08);  color:#f85149; border-color:rgba(248,81,73,.25); }
+
+    .uygunluk-not {
+      width:100%;
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      border-radius:8px; color:#e6edf3; font-size:.76rem;
+      padding:.45rem .6rem; transition:border-color .18s, opacity .2s;
+    }
+    .uygunluk-not:focus { outline:none; border-color:#63b3ed; }
+    .uygunluk-not::placeholder { color:#2d333b; }
+    .uygunluk-not.dim { opacity:.2; pointer-events:none; }
+
+    .btn-uygunluk {
+      background:linear-gradient(135deg,#34d399,#059669);
+      border:none; border-radius:10px; padding:.65rem 1.6rem;
+      font-weight:700; font-size:.9rem; color:#fff; cursor:pointer;
+      width:100%; margin-top:1rem; transition:opacity .2s, transform .15s;
+    }
+    .btn-uygunluk:hover { opacity:.88; transform:translateY(-1px); }
+
+    /* Talep Geçmişi */
+    .talep-satir {
+      display:flex; align-items:center; gap:.8rem;
+      padding:.65rem .2rem; border-bottom:1px solid rgba(255,255,255,.04); flex-wrap:wrap;
+    }
+    .talep-satir:last-child { border-bottom:none; }
+    .t-tarih { font-size:.78rem; color:#8b949e; min-width:80px; }
+    .t-tur   { font-size:.82rem; font-weight:600; flex:1; }
+    .t-acik  { font-size:.74rem; color:#484f58; flex:2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .t-durum {
+      padding:.18rem .7rem; border-radius:20px; font-size:.72rem; font-weight:700; white-space:nowrap;
+    }
+    .d-Beklemede  { background:rgba(234,179,8,.12); color:#ca8a04; border:1px solid rgba(234,179,8,.3); }
+    .d-Onaylandi  { background:rgba(46,160,67,.12); color:#3fb950; border:1px solid rgba(46,160,67,.3); }
+    .d-Reddedildi { background:rgba(248,81,73,.12); color:#f85149; border:1px solid rgba(248,81,73,.3); }
+
+    /* Flash */
+    .alert { border-radius:10px; font-size:.88rem; padding:.7rem 1rem; border:none; margin-bottom:1rem; }
+    .alert-success { background:rgba(46,160,67,.15); color:#3fb950; border:1px solid rgba(46,160,67,.3); }
+    .alert-danger  { background:rgba(248,81,73,.15); color:#f85149; border:1px solid rgba(248,81,73,.3); }
+    .alert-warning { background:rgba(251,146,60,.15);color:#fb923c; border:1px solid rgba(251,146,60,.3); }
+
+    .bos { text-align:center; padding:1.5rem; color:#484f58; font-size:.85rem; }
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a href="/" class="topbar-brand">☕ CAOS</a>
+  <div class="d-flex gap-2 align-items-center">
+    <a href="/haftalik-cizelge" class="btn-cizelge">
+      <i class="bi bi-calendar3 me-1"></i>Haftalık Plan
+    </a>
+    <a href="/logout" class="btn-cikis">
+      <i class="bi bi-box-arrow-right me-1"></i>Çıkış
+    </a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for cat, msg in messages %}
+      <div class="alert alert-{{ cat }}">{{ msg }}</div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <!-- Hoş Geldin -->
+  <div class="hosgeldin">
+    <div class="hg-avatar av-{{ rol }}">{{ isim[0] | upper }}</div>
+    <div>
+      <div class="hg-isim">
+        Merhaba, {{ isim.split()[0] }}! 👋
+        <span class="rol-chip rc-{{ rol }}">
+          {{ 'İşletmeci' if rol == 'Isletmeci' else rol }}
+        </span>
+      </div>
+      <div class="hg-rol">CAOS personel paneline hoş geldin.</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    <!-- Sol Kolon: Vardiya + Talep Geçmişi -->
+    <div class="col-lg-6">
+
+      <!-- Bu Haftanın Vardiyaları -->
+      <div class="section-kart">
+        <div class="kart-baslik">
+          <i class="bi bi-calendar-week" style="color:#63b3ed;"></i>
+          Bu Hafta Vardiyalarım
+          <span style="color:#484f58; font-size:.75rem; font-weight:400; margin-left:auto;">
+            {{ hafta_basi.strftime('%d %b') }} — {{ hafta_gunleri[-1].strftime('%d %b %Y') }}
+          </span>
+        </div>
+        <div class="kart-ici">
+          {% if vardiyalar %}
+            {% for v in vardiyalar %}
+            <div class="vardiya-satir">
+              <div>
+                <div class="v-gun">{{ gun_adlari[v.tarih.weekday()] }}</div>
+                <div class="v-tarih">{{ v.tarih.strftime('%d.%m.%Y') }}</div>
+              </div>
+              <span class="v-chip v-{{ v.vardiya_tipi }}">
+                {{ v.deger or vardiya_deger.get(v.vardiya_tipi, v.vardiya_tipi) }}
+              </span>
+              <span style="font-size:.7rem; color:#484f58;">{{ v.vardiya_tipi }}</span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="bos">
+              <i class="bi bi-calendar-x" style="font-size:1.8rem; display:block; margin-bottom:.4rem;"></i>
+              Bu hafta için vardiya atanmadı.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Son Talepler -->
+      <div class="section-kart">
+        <div class="kart-baslik">
+          <i class="bi bi-inbox" style="color:#a78bfa;"></i>
+          Taleplerim
+        </div>
+        <div class="kart-ici">
+          {% if talepler %}
+            {% for t in talepler %}
+            <div class="talep-satir">
+              <span class="t-tarih">{{ t.tarih.strftime('%d.%m.%Y') }}</span>
+              <span class="t-tur">{{ t.talep_turu }}</span>
+              {% if t.aciklama %}
+              <span class="t-acik" title="{{ t.aciklama }}">{{ t.aciklama[:40] }}{% if t.aciklama|length > 40 %}…{% endif %}</span>
+              {% endif %}
+              <span class="t-durum d-{{ t.durum }}">
+                {% if t.durum == 'Beklemede' %}⏳ Beklemede
+                {% elif t.durum == 'Onaylandi' %}✅ Onaylandı
+                {% else %}❌ Reddedildi
+                {% endif %}
+              </span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="bos">Henüz talep oluşturmadınız.</div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sağ Kolon: Haftalık Uygunluk Formu -->
+
+    <div class="col-lg-6">
+      <div class="section-kart">
+        <div class="kart-baslik">
+          <i class="bi bi-calendar-check" style="color:#34d399;"></i>
+          Haftalık Uygunluk Bildir
+          <span style="color:#484f58; font-size:.72rem; font-weight:400; margin-left:auto;">
+            {{ hafta_basi.strftime('%d %b') }} — {{ hafta_gunleri[-1].strftime('%d %b %Y') }}
+          </span>
+        </div>
+        <div class="kart-ici">
+
+          <form method="POST" action="/haftalik-uygunluk-gonder">
+            <input type="hidden" name="hafta_basi" value="{{ hafta_basi.isoformat() }}" />
+
+            <div class="uygunluk-grid">
+              {% for i, gun in enumerate(hafta_gunleri) %}
+              <div class="gun-sutun">
+
+                <!-- Gün adı + tarih -->
+                <div class="gun-baslik">
+                  <span class="gun-ad">{{ gun_adlari[i] }}</span>
+                  <span class="gun-tar">{{ gun.strftime('%d.%m') }}</span>
+                  {% if gun == bugun %}<br><span class="bugun-etiket">Bugün</span>{% endif %}
+                </div>
+
+                <!-- Durum seçici -->
+                <select
+                  name="gun_{{ i }}_durum"
+                  class="uygunluk-select w-100"
+                  id="sel_{{ i }}"
+                  onchange="guncelle({{ i }})"
+                >
+                  <option value="Fark Etmez">✅ Uygun</option>
+                  <option value="Sadece Sabah">🌅 Sadece Sabah</option>
+                  <option value="Sadece Ara">🌤️ Sadece Ara</option>
+                  <option value="Sadece Kapanış">🌙 Sadece Kapanış</option>
+                  <option value="OFF İstiyorum">🔴 OFF (İzin)</option>
+                </select>
+
+                <!-- Not kutusu -->
+                <input
+                  type="text"
+                  name="gun_{{ i }}_not"
+                  id="not_{{ i }}"
+                  class="uygunluk-not dim"
+                  placeholder="Not…"
+                  autocomplete="off"
+                />
+
+              </div>
+              {% endfor %}
+            </div>
+
+            <button type="submit" class="btn-uygunluk">
+              <i class="bi bi-send me-2"></i>Haftalık Durumumu Gönder
+            </button>
+          </form>
+
+          <div style="margin-top:.8rem; padding:.7rem; background:rgba(52,211,153,.04);
+               border-radius:10px; border:1px solid rgba(52,211,153,.12);">
+            <p style="font-size:.73rem; color:#8b949e; margin:0; line-height:1.6;">
+              <i class="bi bi-info-circle me-1" style="color:#34d399;"></i>
+              Sadece “Uygun” harici günler yöneticiye iletilir.
+              Aynı formu her hafta doldurmak isterseniz tekrar gönderebilirsiniz.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const DURUM_SINIF = {
+  'Fark Etmez':     'su-farketmez',
+  'Sadece Sabah':   'su-sabah',
+  'Sadece Ara':     'su-ara',
+  'Sadece Kapanış': 'su-kapanis',
+  'OFF İstiyorum':  'su-off',
+};
+
+function guncelle(i) {
+  const sel = document.getElementById('sel_' + i);
+  const inp = document.getElementById('not_' + i);
+  const val = sel.value;
+
+  // Renk sınıfını güncelle
+  sel.className = 'uygunluk-select w-100 ' + (DURUM_SINIF[val] || 'su-farketmez');
+
+  // Not kutusunu göster / gizle
+  if (val === 'Fark Etmez') {
+    inp.classList.add('dim');
+    inp.value = '';
+  } else {
+    inp.classList.remove('dim');
+    inp.placeholder = 'Nedenini belirtin (opsiyonel)…';
+    inp.focus();
+  }
+}
+
+// Sayfa açılınca tüm satırları ilk hale getir
+for (let i = 0; i < 7; i++) { guncelle(i); }
+</script>
+</body>
+</html>
