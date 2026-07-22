@@ -24,9 +24,33 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        _kolonlari_guncelle()   # ← mevcut DB'ye yeni kolonları ekle
         _baslangic_verisi_ekle()
 
     return app
+
+
+# ── Hafif Migration (ALTER TABLE) ─────────────────────────────────────────────
+def _kolonlari_guncelle():
+    """
+    db.create_all() zaten var olan tabloları değiştirmez.
+    Bu fonksiyon eksik kolonları ALTER TABLE ile ekler.
+    Kolon zaten varsa SQLite hata fırlatır → except ile sessizce atlanır.
+    """
+    from sqlalchemy import text
+    with db.engine.connect() as conn:
+        adimlar = [
+            # (tablo,  kolon,       tip ve varsayılan)
+            ("vardiya", "departman",      "VARCHAR(20)"),
+            ("talep",   "talep_kategori", "VARCHAR(20) DEFAULT 'Uygunluk'"),
+        ]
+        for tablo, kolon, tanim in adimlar:
+            try:
+                conn.execute(text(f"ALTER TABLE {tablo} ADD COLUMN {kolon} {tanim}"))
+                conn.commit()
+                print(f"  ✅ {tablo}.{kolon} kolonu eklendi.")
+            except Exception:
+                pass  # Kolon zaten mevcut — normal durum
 
 
 # ── Başlangıç Ekibi ───────────────────────────────────────────────────────────

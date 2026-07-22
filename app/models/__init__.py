@@ -39,13 +39,14 @@ class Talep(db.Model):
     """
     __tablename__ = 'talep'
 
-    id          = db.Column(db.Integer, primary_key=True)
-    personel_id = db.Column(db.Integer, db.ForeignKey('personel.id'), nullable=False)
-    tarih       = db.Column(db.Date, nullable=False)
-    talep_turu  = db.Column(db.String(50), nullable=False)   # İzin, Uygunsuz, Tercih
-    aciklama    = db.Column(db.String(500))
-    durum       = db.Column(db.String(20), default='Beklemede')  # Beklemede/Onaylandi/Reddedildi
-    olusturma   = db.Column(db.DateTime, default=datetime.utcnow)
+    id             = db.Column(db.Integer, primary_key=True)
+    personel_id    = db.Column(db.Integer, db.ForeignKey('personel.id'), nullable=False)
+    tarih          = db.Column(db.Date, nullable=False)
+    talep_turu     = db.Column(db.String(50), nullable=False)
+    talep_kategori = db.Column(db.String(20), default='Uygunluk')  # 'Uygunluk' | 'İzin'
+    aciklama       = db.Column(db.String(500))
+    durum          = db.Column(db.String(20), default='Beklemede')  # Beklemede/Onaylandi/Reddedildi
+    olusturma      = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f'<Talep {self.personel_id} {self.tarih} {self.durum}>'
@@ -64,7 +65,8 @@ class Vardiya(db.Model):
     personel_id  = db.Column(db.Integer, db.ForeignKey('personel.id'), nullable=False)
     tarih        = db.Column(db.Date, nullable=False)
     vardiya_tipi = db.Column(db.String(30), nullable=False)
-    # Hücrede görünecek saat/kod — boşsa varsayılan kullanılır
+    departman    = db.Column(db.String(20))  # 'Bar' | 'Salon' | 'Mutfak' | 'Isletmeci'
+    # Hüerede görünecek saat/kod — boşsa varsayılan kullanılır
     deger        = db.Column(db.String(50))
 
     __table_args__ = (

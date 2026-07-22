@@ -223,7 +223,7 @@
             <!-- Her gün için atama hücresi -->
             {% for gun in hafta_gunleri %}
             {% set atanan_pid = slot_map.get(dep_key, {}).get(slot_tipi, {}).get(gun.isoformat()) %}
-            <td class="atama-td">
+              <td class="atama-td">
               <select
                 name="slot_{{ dep_key }}_{{ slot_tipi }}_{{ gun.isoformat() }}"
                 class="atama-select"
@@ -233,16 +233,24 @@
                 <option value="">— Atanmadı —</option>
                 {% for p in personel_by_dep.get(dep_key, []) %}
                 {% set izinli = gun.isoformat() in izinli_gunler.get(p.id, []) %}
+                {% set pref   = uygunluk_map.get(p.id, {}).get(gun.isoformat()) %}
                 <option
                   value="{{ p.id }}"
                   {% if atanan_pid == p.id %}selected{% endif %}
                   {% if izinli %}class="izinli"{% endif %}
                 >
-                  {% if izinli %}🚫 {% endif %}{{ p.isim }}{% if izinli %} (İzinli){% endif %}
+                  {%- if izinli -%}🚫 {{ p.isim }} (Onaylı İzin)
+                  {%- elif pref == 'Sadece Sabah' -%}🌅 {{ p.isim }} [Sadece Sabah]
+                  {%- elif pref == 'Sadece Ara' -%}🌤️ {{ p.isim }} [Sadece Ara]
+                  {%- elif pref == 'Sadece Kapanış' -%}🌙 {{ p.isim }} [Sadece Kapanış]
+                  {%- elif pref == 'OFF İstiyorum' -%}🔴 {{ p.isim }} [OFF İstiyor]
+                  {%- else -%}{{ p.isim }}
+                  {%- endif -%}
                 </option>
                 {% endfor %}
               </select>
             </td>
+
             {% endfor %}
           </tr>
           {% endfor %}

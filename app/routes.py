@@ -158,7 +158,7 @@ def personel_yonetimi():
         # ── Personel sil ──
         elif islem == 'sil':
             pid = request.form.get('personel_id', type=int)
-            p   = Personel.query.get(pid)
+            p   = db.session.get(Personel, pid)
             if p and p.rol != 'Isletmeci':
                 db.session.delete(p)
                 db.session.commit()
@@ -217,7 +217,7 @@ def vardiya_planlama():
                         continue
                     cakisma_key = (pid, gun.isoformat())
                     if cakisma_key in atanan_gunler:
-                        p_obj = Personel.query.get(pid)
+                        p_obj = db.session.get(Personel, pid)
                         isim  = p_obj.isim if p_obj else str(pid)
                         flash(
                             f'⚠️ Çakışma: {isim} — '
@@ -229,14 +229,14 @@ def vardiya_planlama():
                         cakisma = True
                     else:
                         atanan_gunler[cakisma_key] = slot_tipi
-                        atamalar.append((pid, gun, slot_tipi))
+                        atamalar.append((pid, gun, slot_tipi, dep_key))
 
         if not cakisma:
-            for pid, gun, slot_tipi in atamalar:
+            for pid, gun, slot_tipi, dep_key in atamalar:
                 deger = VARDIYA_DEGER.get(slot_tipi, slot_tipi)
                 db.session.add(Vardiya(
                     personel_id=pid, tarih=gun,
-                    vardiya_tipi=slot_tipi, deger=deger
+                    vardiya_tipi=slot_tipi, departman=dep_key, deger=deger
                 ))
             db.session.commit()
             flash('✅ Vardiyalar kaydedildi!', 'success')
@@ -274,11 +274,24 @@ def vardiya_planlama():
     uyarilar_q = Talep.query.filter(
         Talep.tarih >= hafta_basi,
         Talep.tarih <= hafta_bitis,
-        Talep.durum == 'Onaylandi'
+        Talep.durum == 'Onaylandi',
+        Talep.talep_kategori == 'İzin'
     ).all()
     izinli_gunler = {}
     for u in uyarilar_q:
         izinli_gunler.setdefault(u.personel_id, []).append(u.tarih.isoformat())
+
+    # Uygunluk bildirimleri: {personel_id: {tarih_str: talep_turu}}
+    # Beklemede + Onaylandi (yani reddedilmemiş) uygunluk talepleri gösterilir
+    uygunluk_q = Talep.query.filter(
+        Talep.tarih >= hafta_basi,
+        Talep.tarih <= hafta_bitis,
+        Talep.talep_turu.in_(UYGUNLUK_TURLERI),
+        Talep.durum != 'Reddedildi'
+    ).all()
+    uygunluk_map: dict = {}
+    for u in uygunluk_q:
+        uygunluk_map.setdefault(u.personel_id, {})[u.tarih.isoformat()] = u.talep_turu
 
     return render_template(
         'vardiya_planlama.html',
@@ -290,6 +303,7 @@ def vardiya_planlama():
         slot_map=slot_map,
         personel_by_dep=personel_by_dep,
         izinli_gunler=izinli_gunler,
+        uygunluk_map=uygunluk_map,
         tum_personel=tum_personel,
         vardiya_deger=VARDIYA_DEGER,
         gun_adlari=GUN_ADLARI,
@@ -395,7 +409,7 @@ def haftalik_cizelge():
 
     # Departman sırası ve görünen adları
     DEPARTMAN_SIRASI = ['Isletmeci', 'Salon', 'Bar', 'Mutfak']
-    DEPARTMAN_LABEL  = {
+    dep_label_lokal  = {
         'Isletmeci': 'İŞLETME',
         'Salon':     'SALON',
         'Bar':       'BAR',
@@ -412,7 +426,7 @@ def haftalik_cizelge():
     return render_template(
         'haftalik_cizelge.html',
         gruplar=gruplar,
-        dep_label=DEPARTMAN_LABEL,
+        dep_label=dep_label_lokal,
         hafta_gunleri=hafta_gunleri,
         hafta_basi=hafta_basi,
         hafta_bitis=hafta_bitis,
@@ -436,27 +450,61 @@ def personel_panel():
     hafta_bitis  = hafta_basi + timedelta(days=6)
     hafta_gunleri = [hafta_basi + timedelta(days=i) for i in range(7)]
 
+    # Uygunluk formu her zaman gelecek haftayı gösterir
+    gelecek_hafta_basi    = hafta_basi + timedelta(weeks=1)
+    gelecek_hafta_gunleri = [gelecek_hafta_basi + timedelta(days=i) for i in range(7)]
+
+    # Gelecek haftaya ait mevcut uygunluk kayıtlarını çek (matris pre-fill)
+    mevcut_uygunluklar = (Talep.query
+        .filter_by(personel_id=pid, talep_kategori='Uygunluk')
+        .filter(Talep.tarih >= gelecek_hafta_basi,
+                Talep.tarih <= gelecek_hafta_basi + timedelta(days=6),
+                Talep.durum != 'Reddedildi')
+        .all())
+    onceki_uygunluk: dict = {}
+    for t in mevcut_uygunluklar:
+        slot_kodu = MATRIS_SLOT_MAP_TERS.get(t.talep_turu)
+        if slot_kodu:
+            onceki_uygunluk.setdefault(t.tarih.weekday(), {})[slot_kodu] = True
+
     vardiyalar = (Vardiya.query
                   .filter_by(personel_id=pid)
                   .filter(Vardiya.tarih >= hafta_basi, Vardiya.tarih <= hafta_bitis)
                   .order_by(Vardiya.tarih)
                   .all())
+    hafta_vardiya_map = {v.tarih: v for v in vardiyalar}
 
-    # Son 15 kişisel talep
+    # Son 4 haftanın uygunluk talepleri (haftalık tabloda görünür)
     talepler = (Talep.query
-                .filter_by(personel_id=pid)
-                .order_by(Talep.olusturma.desc())
-                .limit(15)
+                .filter_by(personel_id=pid, talep_kategori='Uygunluk')
+                .order_by(Talep.tarih.desc())
                 .all())
+
+    # Talepleri hafta × gün matrisine çevir
+    # hafta_talep_map: { hafta_basi_date: { weekday_int: [Talep, ...] } }
+    hafta_talep_map: dict = {}
+    for t in talepler:
+        hafta_b = t.tarih - timedelta(days=t.tarih.weekday())
+        hafta_talep_map.setdefault(hafta_b, {}).setdefault(t.tarih.weekday(), []).append(t)
+
+    # Sırala: en yeni hafta üste
+    haftalik_talepler = [
+        (hafta_b, hafta_b + timedelta(days=6), gunler)
+        for hafta_b, gunler in sorted(hafta_talep_map.items(), reverse=True)
+    ]
 
     return render_template(
         'personel_dashboard.html',
         isim=session['isim'],
         rol=session['rol'],
         vardiyalar=vardiyalar,
-        talepler=talepler,
+        haftalik_talepler=haftalik_talepler,
         hafta_basi=hafta_basi,
         hafta_gunleri=hafta_gunleri,
+        gelecek_hafta_basi=gelecek_hafta_basi,
+        gelecek_hafta_gunleri=gelecek_hafta_gunleri,
+        onceki_uygunluk=onceki_uygunluk,
+        hafta_vardiya_map=hafta_vardiya_map,
         gun_adlari=GUN_ADLARI,
         vardiya_deger=VARDIYA_DEGER,
         bugun=bugun,
@@ -486,6 +534,7 @@ def talep_gonder():
         personel_id=pid,
         tarih=tarih,
         talep_turu=talep_turu,
+        talep_kategori='İzin',
         aciklama=aciklama,
         durum='Beklemede'
     )
@@ -496,8 +545,16 @@ def talep_gonder():
 
 
 # ── Haftalık Uygunluk Gönder (POST) ──────────────────────────────────────────
-# Uygunluk formundan gelen 7 günlük paket; sadece "Fark Etmez" harici günler kaydedilir.
+# Matris checkbox formatı: gun_{gün_idx}_{slot_kodu}  (checked → "on")
 UYGUNLUK_TURLERI = ['Sadece Sabah', 'Sadece Ara', 'Sadece Kapanış', 'OFF İstiyorum']
+
+MATRIS_SLOT_MAP = {
+    'Sabahci': 'Sadece Sabah',
+    'Araci':   'Sadece Ara',
+    'Kapanis': 'Sadece Kapanış',
+    'OFF':     'OFF İstiyorum',
+}
+MATRIS_SLOT_MAP_TERS = {v: k for k, v in MATRIS_SLOT_MAP.items()}
 
 @main.route('/haftalik-uygunluk-gonder', methods=['POST'])
 @giris_gerekli
@@ -524,23 +581,19 @@ def haftalik_uygunluk_gonder():
      .delete(synchronize_session=False))
     db.session.flush()
 
-    # Sadece "Fark Etmez" harici günleri kaydet
+    # İşaretlenen her checkbox için ayrı kayıt oluştur
     eklenen = 0
     for i, gun in enumerate(hafta_gunleri):
-        durum = request.form.get(f'gun_{i}_durum', 'Fark Etmez').strip()
-        not_  = request.form.get(f'gun_{i}_not',  '').strip()
-
-        if durum == 'Fark Etmez':
-            continue
-
-        db.session.add(Talep(
-            personel_id=pid,
-            tarih=gun,
-            talep_turu=durum,
-            aciklama=not_ or None,
-            durum='Beklemede'
-        ))
-        eklenen += 1
+        for slot_kodu, talep_turu in MATRIS_SLOT_MAP.items():
+            if request.form.get(f'gun_{i}_{slot_kodu}'):
+                db.session.add(Talep(
+                    personel_id=pid,
+                    tarih=gun,
+                    talep_turu=talep_turu,
+                    talep_kategori='Uygunluk',
+                    durum='Beklemede'
+                ))
+                eklenen += 1
 
     db.session.commit()
 
@@ -561,7 +614,7 @@ def talep_yonetimi():
     if request.method == 'POST':
         talep_id = request.form.get('talep_id', type=int)
         islem    = request.form.get('islem', '')
-        talep    = Talep.query.get(talep_id)
+        talep    = db.session.get(Talep, talep_id)
 
         if talep:
             if islem == 'onayla':
@@ -574,10 +627,10 @@ def talep_yonetimi():
 
         return redirect(url_for('main.talep_yonetimi'))
 
-    # Bekleyenler önce, sonra tarihsel sıra
+    # Bekleyenler önce, sonra oluşturma tarihine göre yeniden eskiye
     talepler = (Talep.query
                 .order_by(
-                    Talep.durum == 'Beklemede',   # True=1, False=0 → ters sırala
+                    (Talep.durum != 'Beklemede'),  # False(0)=Beklemede → üste gelir
                     Talep.olusturma.desc()
                 )
                 .all())

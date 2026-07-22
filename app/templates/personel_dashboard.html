@@ -92,67 +92,71 @@
     .v-BT       { background:rgba(167,139,250,.15); color:#a78bfa;  border:1px solid rgba(167,139,250,.3);}
     .v-bos { color:#2d333b; font-size:.8rem; font-style:italic; }
 
-    /* ── Haftalık Uygunluk Formu (Yatay) ── */
-    .uygunluk-grid {
-      display: flex; flex-wrap: nowrap; gap: 1rem;
-      overflow-x: auto; overflow-y: hidden; padding-bottom: 15px;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent;
-      -webkit-overflow-scrolling: touch; /* Mobil ivmeli kaydırma */
+    /* ── Uygunluk Matris Formu ── */
+    .matris-wrap {
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
     }
-    .uygunluk-grid::-webkit-scrollbar { height: 6px; }
-    .uygunluk-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 10px; }
-    
-    .gun-sutun {
-      flex: 0 0 auto; width: 280px; /* Asla ezilmez ve daralmaz */
-      background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05);
-      border-radius: 12px; padding: .8rem;
-      display: flex; flex-direction: column; gap: .6rem;
+    .matris-wrap::-webkit-scrollbar { height: 5px; }
+    .matris-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 10px; }
+
+    .matris-tablo { width: 100%; border-collapse: collapse; min-width: 520px; }
+    .matris-tablo thead th {
+      padding: .55rem .4rem; font-size: .72rem; font-weight: 700;
+      color: #6e7681; text-align: center;
+      border-bottom: 2px solid rgba(99,179,237,.15); white-space: nowrap;
+    }
+    .matris-tablo thead th:first-child { text-align: left; min-width: 115px; padding-left: .6rem; }
+    .matris-tablo .gun-ad-th  { display: block; color: #c9d1d9; font-size: .82rem; }
+    .matris-tablo .gun-tar-th { color: #484f58; font-size: .68rem; font-weight: 400; }
+    .matris-tablo .bugun-th .gun-ad-th { color: #63b3ed; }
+
+    .matris-tablo tbody td {
+      padding: .32rem .25rem; text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .matris-tablo tbody td:first-child { text-align: left; padding-left: .6rem; }
+    .matris-tablo tbody tr:last-child td { border-bottom: none; }
+    .matris-tablo .off-row td {
+      border-top: 2px solid rgba(248,81,73,.1);
+      background: rgba(248,81,73,.02);
     }
 
-    .gun-sol { min-width:88px; flex-shrink:0; }
-    .gun-baslik { text-align:center; padding-bottom:.5rem; border-bottom:1px solid rgba(255,255,255,.05); }
-    .gun-ad  { font-size:.85rem; font-weight:700; color:#c9d1d9; display:block; }
-    .gun-tar { font-size:.7rem; color:#8b949e; }
-    .bugun-etiket {
-      display:inline-block; background:rgba(99,179,237,.15); color:#63b3ed;
-      border:1px solid rgba(99,179,237,.3); border-radius:10px;
-      padding:.1rem .5rem; font-size:.6rem; font-weight:700; margin-top:.3rem;
-    }
+    /* Slot etiket sol sutun */
+    .slot-lbl  { display: flex; align-items: center; gap: .4rem; }
+    .slot-bar2 { display: inline-block; width: 3px; height: 1.1rem; border-radius: 2px; flex-shrink: 0; }
+    .r2-sabah   { background: #63b3ed; }
+    .r2-ara     { background: #a78bfa; }
+    .r2-kapanis { background: #fb923c; }
+    .r2-off     { background: #f85149; }
+    .slot-lbl-isim { font-size: .8rem; font-weight: 700; color: #c9d1d9; }
+    .slot-lbl-saat { font-size: .63rem; color: #484f58; font-family: monospace; display: block; }
 
-    .uygunluk-select {
-      width:100%; border-radius:8px; padding:.45rem .5rem;
-      font-size:.78rem; font-weight:600; cursor:pointer;
-      border:1px solid rgba(255,255,255,.1); transition:all .18s;
-      background:rgba(52,211,153,.07); color:#34d399;
-      appearance:auto; text-align:center;
+    /* Toggle hücre butonu */
+    .toggle-label { display: inline-block; cursor: pointer; }
+    .toggle-label input[type=checkbox] { display: none; }
+    .toggle-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 44px; height: 36px; border-radius: 9px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.03); color: #484f58;
+      font-size: .9rem; transition: all .18s;
     }
-    .uygunluk-select:focus { outline:none; }
-    .uygunluk-select option { background:#1a1f2e; color:#e6edf3; }
-
-    /* Renk sınıfları — JS tarafından atanır */
-    .su-farketmez { background:rgba(52,211,153,.07); color:#34d399; border-color:rgba(52,211,153,.2); }
-    .su-sabah     { background:rgba(99,179,237,.08); color:#63b3ed; border-color:rgba(99,179,237,.25); }
-    .su-ara       { background:rgba(167,139,250,.08);color:#a78bfa; border-color:rgba(167,139,250,.25); }
-    .su-kapanis   { background:rgba(251,146,60,.08); color:#fb923c; border-color:rgba(251,146,60,.25); }
-    .su-off       { background:rgba(248,81,73,.08);  color:#f85149; border-color:rgba(248,81,73,.25); }
-
-    .uygunluk-not {
-      width:100%;
-      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-      border-radius:8px; color:#e6edf3; font-size:.76rem;
-      padding:.45rem .6rem; transition:border-color .18s, opacity .2s;
+    .toggle-btn:hover { border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.08); color: #8b949e; }
+    .toggle-label input:checked + .toggle-btn {
+      background: rgba(52,211,153,.18); border-color: #34d399; color: #34d399;
     }
-    .uygunluk-not:focus { outline:none; border-color:#63b3ed; }
-    .uygunluk-not::placeholder { color:#2d333b; }
-    .uygunluk-not.dim { opacity:.2; pointer-events:none; }
+    .off-toggle .toggle-label input:checked + .toggle-btn {
+      background: rgba(248,81,73,.18); border-color: #f85149; color: #f85149;
+    }
 
     .btn-uygunluk {
-      background:linear-gradient(135deg,#34d399,#059669);
-      border:none; border-radius:10px; padding:.65rem 1.6rem;
-      font-weight:700; font-size:.9rem; color:#fff; cursor:pointer;
-      width:100%; margin-top:1rem; transition:opacity .2s, transform .15s;
+      background: linear-gradient(135deg,#34d399,#059669);
+      border: none; border-radius: 10px; padding: .65rem 1.6rem;
+      font-weight: 700; font-size: .9rem; color: #fff; cursor: pointer;
+      transition: opacity .2s, transform .15s;
     }
-    .btn-uygunluk:hover { opacity:.88; transform:translateY(-1px); }
+    .btn-uygunluk:hover { opacity: .88; transform: translateY(-1px); }
 
     /* Talep Geçmişi */
     .talep-satir {
@@ -175,8 +179,116 @@
     .alert-success { background:rgba(46,160,67,.15); color:#3fb950; border:1px solid rgba(46,160,67,.3); }
     .alert-danger  { background:rgba(248,81,73,.15); color:#f85149; border:1px solid rgba(248,81,73,.3); }
     .alert-warning { background:rgba(251,146,60,.15);color:#fb923c; border:1px solid rgba(251,146,60,.3); }
+    .alert-info    { background:rgba(99,179,237,.15); color:#63b3ed; border:1px solid rgba(99,179,237,.3); }
+
+    /* İzin talebi formu */
+    .izin-input {
+      width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12);
+      color:#e6edf3; border-radius:8px; padding:.45rem .7rem; font-size:.85rem;
+      outline:none; font-family:'Inter',sans-serif; transition:border-color .15s;
+      -webkit-appearance:none; appearance:none;
+    }
+    .izin-input:focus { border-color:rgba(248,81,73,.45); }
+    .izin-input option { background:#161b2a; color:#e6edf3; }
+    .izin-label { font-size:.78rem; color:#8b949e; font-weight:600; display:block; margin-bottom:.35rem; }
+    .btn-izin {
+      width:100%; background:rgba(248,81,73,.12); border:1px solid rgba(248,81,73,.28);
+      color:#f85149; border-radius:9px; padding:.55rem 1.2rem; font-weight:700;
+      font-size:.88rem; cursor:pointer; transition:background .2s; font-family:'Inter',sans-serif;
+    }
+    .btn-izin:hover { background:rgba(248,81,73,.22); }
+
+    /* Haftalık Vardiya Tablosu */
+    .hafta-tablo-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.12) transparent; }
+    .hafta-tablo-wrap::-webkit-scrollbar { height:4px; }
+    .hafta-tablo-wrap::-webkit-scrollbar-thumb { background:rgba(255,255,255,.15); border-radius:4px; }
+    .hafta-tablo { width:100%; border-collapse:collapse; min-width:360px; table-layout:fixed; }
+    .hafta-tablo thead th {
+      padding:.4rem .25rem; text-align:center; font-size:.72rem; font-weight:700;
+      color:#6e7681; border-bottom:2px solid rgba(255,255,255,.08); white-space:nowrap;
+    }
+    .hafta-tablo tbody td { padding:.55rem .2rem; text-align:center; vertical-align:middle; }
+    .ht-gun-ad { display:block; font-size:.76rem; color:#c9d1d9; font-weight:700; }
+    .ht-tarih  { display:block; font-size:.64rem; color:#484f58; margin-top:.05rem; }
+    .ht-bugun-th .ht-gun-ad { color:#63b3ed; }
+    .ht-bugun-th .ht-tarih  { color:#4a7fa5; }
+    .ht-bos  { color:#2d333b; font-size:.9rem; }
+    .ht-saat { display:block; font-size:.62rem; color:#484f58; font-family:monospace; margin-top:.2rem; }
+
+    /* ⋮ İzin toggle butonu */
+    .btn-izin-toggler {
+      background:transparent; border:1px solid rgba(255,255,255,.1);
+      color:#6e7681; border-radius:7px; padding:.22rem .55rem;
+      cursor:pointer; font-size:.88rem; line-height:1; flex-shrink:0; transition:all .15s;
+    }
+    .btn-izin-toggler:hover,
+    .btn-izin-toggler[aria-expanded="true"] {
+      background:rgba(248,81,73,.1); border-color:rgba(248,81,73,.3); color:#f85149;
+    }
+    /* Collapse içi mini İzin formu */
+    .izin-panel {
+      padding:.85rem 1.4rem; border-bottom:1px solid rgba(248,81,73,.1);
+      background:rgba(248,81,73,.03);
+    }
+    .izin-mini-form { display:flex; gap:.65rem; align-items:flex-end; flex-wrap:wrap; }
+    .izin-field { display:flex; flex-direction:column; gap:.2rem; min-width:110px; }
+    .izin-field label { font-size:.7rem; color:#8b949e; font-weight:600; }
+    .izin-field .izin-input { font-size:.82rem; padding:.36rem .6rem; }
+    .btn-izin-mini {
+      background:rgba(248,81,73,.12); border:1px solid rgba(248,81,73,.28);
+      color:#f85149; border-radius:8px; padding:.36rem 1rem; font-weight:700;
+      font-size:.82rem; cursor:pointer; transition:background .2s; font-family:'Inter',sans-serif;
+      white-space:nowrap; align-self:flex-end;
+    }
+    .btn-izin-mini:hover { background:rgba(248,81,73,.22); }
 
     .bos { text-align:center; padding:1.5rem; color:#484f58; font-size:.85rem; }
+
+    /* ── Uygunluk Geçmişi Tablosu ── */
+    .talep-tablo-wrap {
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
+    }
+    .talep-tablo-wrap::-webkit-scrollbar { height: 5px; }
+    .talep-tablo-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
+    .talep-tablo {
+      width: 100%; border-collapse: collapse; font-size: .8rem; min-width: 640px;
+    }
+    .talep-tablo thead th {
+      padding: .5rem .65rem; font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .04em; color: #484f58;
+      border-bottom: 1px solid rgba(255,255,255,.08); text-align: center;
+    }
+    .talep-tablo thead th:first-child { text-align: left; min-width: 110px; }
+    .talep-tablo tbody td {
+      padding: .55rem .6rem; border-bottom: 1px solid rgba(255,255,255,.04);
+      text-align: center; vertical-align: middle;
+    }
+    .talep-tablo tbody td:first-child {
+      text-align: left; font-size: .72rem; color: #8b949e; font-weight: 600; white-space: nowrap;
+    }
+    .talep-tablo tbody tr:last-child td { border-bottom: none; }
+    .talep-tablo tbody tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* Gün hücresi içindeki rozet */
+    .tc-tur {
+      display: inline-block; border-radius: 6px; padding: .18rem .55rem;
+      font-size: .7rem; font-weight: 700; white-space: nowrap; line-height: 1.5;
+    }
+    .tc-sabah   { background:rgba(99,179,237,.12);  color:#63b3ed;  border:1px solid rgba(99,179,237,.25); }
+    .tc-ara     { background:rgba(167,139,250,.12); color:#a78bfa;  border:1px solid rgba(167,139,250,.25); }
+    .tc-kapanis { background:rgba(251,146,60,.12);  color:#fb923c;  border:1px solid rgba(251,146,60,.25); }
+    .tc-off     { background:rgba(248,81,73,.12);   color:#f85149;  border:1px solid rgba(248,81,73,.25); }
+    .tc-bos     { color:#2d333b; font-size: .75rem; }
+    /* Durum micro-badge */
+    .tc-durum   { display:block; font-size:.62rem; margin-top:.18rem; font-weight:700; }
+    .tc-Beklemede  { color:#ca8a04; }
+    .tc-Onaylandi  { color:#3fb950; }
+    .tc-Reddedildi { color:#f85149; }
+    /* Not satırı */
+    .tc-not { display:block; font-size:.63rem; color:#484f58; margin-top:.1rem;
+              white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90px; }
   </style>
 </head>
 <body>
@@ -215,182 +327,257 @@
     </div>
   </div>
 
-  <div class="row g-3">
-
-    <!-- Sol Kolon: Vardiya + Talep Geçmişi -->
-    <div class="col-lg-6">
-
-      <!-- Bu Haftanın Vardiyaları -->
-      <div class="section-kart">
-        <div class="kart-baslik">
-          <i class="bi bi-calendar-week" style="color:#63b3ed;"></i>
-          Bu Hafta Vardiyalarım
-          <span style="color:#484f58; font-size:.75rem; font-weight:400; margin-left:auto;">
-            {{ hafta_basi.strftime('%d %b') }} — {{ hafta_gunleri[-1].strftime('%d %b %Y') }}
-          </span>
-        </div>
-        <div class="kart-ici">
-          {% if vardiyalar %}
-            {% for v in vardiyalar %}
-            <div class="vardiya-satir">
-              <div>
-                <div class="v-gun">{{ gun_adlari[v.tarih.weekday()] }}</div>
-                <div class="v-tarih">{{ v.tarih.strftime('%d.%m.%Y') }}</div>
-              </div>
-              <span class="v-chip v-{{ v.vardiya_tipi }}">
-                {{ v.deger or vardiya_deger.get(v.vardiya_tipi, v.vardiya_tipi) }}
-              </span>
-              <span style="font-size:.7rem; color:#484f58;">{{ v.vardiya_tipi }}</span>
-            </div>
-            {% endfor %}
-          {% else %}
-            <div class="bos">
-              <i class="bi bi-calendar-x" style="font-size:1.8rem; display:block; margin-bottom:.4rem;"></i>
-              Bu hafta için vardiya atanmadı.
-            </div>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Son Talepler -->
-      <div class="section-kart">
-        <div class="kart-baslik">
-          <i class="bi bi-inbox" style="color:#a78bfa;"></i>
-          Taleplerim
-        </div>
-        <div class="kart-ici">
-          {% if talepler %}
-            {% for t in talepler %}
-            <div class="talep-satir">
-              <span class="t-tarih">{{ t.tarih.strftime('%d.%m.%Y') }}</span>
-              <span class="t-tur">{{ t.talep_turu }}</span>
-              {% if t.aciklama %}
-              <span class="t-acik" title="{{ t.aciklama }}">{{ t.aciklama[:40] }}{% if t.aciklama|length > 40 %}…{% endif %}</span>
-              {% endif %}
-              <span class="t-durum d-{{ t.durum }}">
-                {% if t.durum == 'Beklemede' %}⏳ Beklemede
-                {% elif t.durum == 'Onaylandi' %}✅ Onaylandı
-                {% else %}❌ Reddedildi
-                {% endif %}
-              </span>
-            </div>
-            {% endfor %}
-          {% else %}
-            <div class="bos">Henüz talep oluşturmadınız.</div>
-          {% endif %}
-        </div>
-      </div>
-
+  <!-- Bu Hafta Vardiyalarım — Haftalık Tablo -->
+  <div class="section-kart" style="margin-bottom:1.5rem;">
+    <div class="kart-baslik">
+      <i class="bi bi-calendar-week" style="color:#63b3ed;"></i>
+      Bu Hafta Vardiyalarım
+      <span style="color:#484f58; font-size:.75rem; font-weight:400; margin-left:.5rem;">
+        {{ hafta_basi.strftime('%d %b') }} — {{ hafta_gunleri[-1].strftime('%d %b %Y') }}
+      </span>
+      <button class="btn-izin-toggler ms-auto" type="button"
+              data-bs-toggle="collapse" data-bs-target="#izin-panel"
+              aria-expanded="false" title="İzin Talebi Gönder">
+        <i class="bi bi-three-dots-vertical"></i>
+      </button>
     </div>
 
-    <!-- Sağ Kolon: Haftalık Uygunluk Formu -->
-
-    <div class="col-lg-6">
-      <div class="section-kart">
-        <div class="kart-baslik">
-          <i class="bi bi-calendar-check" style="color:#34d399;"></i>
-          Haftalık Uygunluk Bildir
-          <span style="color:#484f58; font-size:.72rem; font-weight:400; margin-left:auto;">
-            {{ hafta_basi.strftime('%d %b') }} — {{ hafta_gunleri[-1].strftime('%d %b %Y') }}
-          </span>
+    <!-- Collapse: Mini İzin Formu -->
+    <div class="collapse" id="izin-panel">
+      <div class="izin-panel">
+        <div style="font-size:.74rem; font-weight:700; color:#f85149; margin-bottom:.7rem;">
+          <i class="bi bi-calendar-x me-1"></i>İzin Talebi Gönder
+          <span style="color:#484f58; font-weight:400; font-size:.68rem; margin-left:.4rem;">— yönetici onayına gider</span>
         </div>
-        <div class="kart-ici">
-
-          <form method="POST" action="/haftalik-uygunluk-gonder">
-            <input type="hidden" name="hafta_basi" value="{{ hafta_basi.isoformat() }}" />
-
-            <div class="uygunluk-grid">
-              {% for i, gun in enumerate(hafta_gunleri) %}
-              <div class="gun-sutun">
-
-                <!-- Gün adı + tarih -->
-                <div class="gun-baslik">
-                  <span class="gun-ad">{{ gun_adlari[i] }}</span>
-                  <span class="gun-tar">{{ gun.strftime('%d.%m') }}</span>
-                  {% if gun == bugun %}<br><span class="bugun-etiket">Bugün</span>{% endif %}
-                </div>
-
-                <!-- Durum seçici -->
-                <select
-                  name="gun_{{ i }}_durum"
-                  class="uygunluk-select w-100"
-                  id="sel_{{ i }}"
-                  onchange="guncelle({{ i }})"
-                >
-                  <option value="Fark Etmez">✅ Uygun</option>
-                  <option value="Sadece Sabah">🌅 Sadece Sabah</option>
-                  <option value="Sadece Ara">🌤️ Sadece Ara</option>
-                  <option value="Sadece Kapanış">🌙 Sadece Kapanış</option>
-                  <option value="OFF İstiyorum">🔴 OFF (İzin)</option>
-                </select>
-
-                <!-- Not kutusu -->
-                <input
-                  type="text"
-                  name="gun_{{ i }}_not"
-                  id="not_{{ i }}"
-                  class="uygunluk-not dim"
-                  placeholder="Not…"
-                  autocomplete="off"
-                />
-
-              </div>
-              {% endfor %}
-            </div>
-
-            <button type="submit" class="btn-uygunluk">
-              <i class="bi bi-send me-2"></i>Haftalık Durumumu Gönder
-            </button>
-          </form>
-
-          <div style="margin-top:.8rem; padding:.7rem; background:rgba(52,211,153,.04);
-               border-radius:10px; border:1px solid rgba(52,211,153,.12);">
-            <p style="font-size:.73rem; color:#8b949e; margin:0; line-height:1.6;">
-              <i class="bi bi-info-circle me-1" style="color:#34d399;"></i>
-              Sadece “Uygun” harici günler yöneticiye iletilir.
-              Aynı formu her hafta doldurmak isterseniz tekrar gönderebilirsiniz.
-            </p>
+        <form method="POST" action="/talep-gonder" class="izin-mini-form">
+          <div class="izin-field">
+            <label>Tarih</label>
+            <input type="date" name="tarih" class="izin-input" required
+                   min="{{ bugun.isoformat() }}">
           </div>
-
-        </div>
+          <div class="izin-field" style="min-width:140px;">
+            <label>İzin Türü</label>
+            <select name="talep_turu" class="izin-input" required>
+              <option value="Yıllık İzin">Yıllık İzin</option>
+              <option value="Hastalık İzni">Hastalık İzni</option>
+              <option value="Mazeret İzni">Mazeret İzni</option>
+              <option value="Ücretsiz İzin">Ücretsiz İzin</option>
+            </select>
+          </div>
+          <div class="izin-field" style="flex:1; min-width:150px;">
+            <label>Not <span style="color:#484f58; font-weight:400;">(isteğe bağlı)</span></label>
+            <input type="text" name="aciklama" class="izin-input" maxlength="200"
+                   placeholder="Kısa açıklama...">
+          </div>
+          <button type="submit" class="btn-izin-mini">
+            <i class="bi bi-send me-1"></i>İlet
+          </button>
+        </form>
       </div>
     </div>
 
+    <!-- 7-Günlük Tablo -->
+    <div class="hafta-tablo-wrap kart-ici" style="padding-top:.5rem; padding-bottom:.5rem;">
+      <table class="hafta-tablo">
+        <thead>
+          <tr>
+            {% for i, gun in enumerate(hafta_gunleri) %}
+            <th class="{{ 'ht-bugun-th' if gun == bugun else '' }}">
+              <span class="ht-gun-ad">{{ gun_adlari[i][:3] }}</span>
+              <span class="ht-tarih">{{ gun.strftime('%d.%m') }}</span>
+            </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {% for gun in hafta_gunleri %}
+            {% set v = hafta_vardiya_map.get(gun) %}
+            <td>
+              {% if v %}
+                <span class="v-chip v-{{ v.vardiya_tipi }}"
+                      style="font-size:.67rem; padding:.1rem .4rem; display:inline-block;">
+                  {{ v.vardiya_tipi }}
+                </span>
+                <span class="ht-saat">{{ v.deger or vardiya_deger.get(v.vardiya_tipi, v.vardiya_tipi) }}</span>
+              {% else %}
+                <span class="ht-bos">—</span>
+              {% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+
+  <!-- Uygunluk Bildir — Tıklanabilir Matris -->
+  <div class="section-kart" style="margin-top:1.5rem;">
+    <div class="kart-baslik">
+      <i class="bi bi-grid-3x3-gap-fill" style="color:#34d399;"></i>
+      Haftalık Uygunluk Bildir
+      <span style="background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.25);
+                   color:#34d399; border-radius:6px; padding:.1rem .55rem;
+                   font-size:.68rem; font-weight:700; margin-left:.5rem;">Gelecek Hafta</span>
+      <span style="color:#484f58; font-size:.72rem; font-weight:400; margin-left:auto;">
+        {{ gelecek_hafta_basi.strftime('%d %b') }} — {{ gelecek_hafta_gunleri[-1].strftime('%d %b %Y') }}
+        &nbsp;·&nbsp; Gelebileceğin slotlara tıkla ✓
+      </span>
+    </div>
+    <div class="kart-ici">
+      <form method="POST" action="/haftalik-uygunluk-gonder">
+        <input type="hidden" name="hafta_basi" value="{{ gelecek_hafta_basi.isoformat() }}" />
+
+        <div class="matris-wrap">
+          <table class="matris-tablo">
+            <thead>
+              <tr>
+                <th></th>
+                {% for i, gun in enumerate(gelecek_hafta_gunleri) %}
+                <th class="{% if gun == bugun %}bugun-th{% endif %}">
+                  <span class="gun-ad-th">{{ gun_adlari[i][:3] }}</span>
+                  <span class="gun-tar-th">{{ gun.strftime('%d.%m') }}</span>
+                </th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+
+              {# Sabahçı satırı #}
+              <tr>
+                <td>
+                  <div class="slot-lbl">
+                    <span class="slot-bar2 r2-sabah"></span>
+                    <div>
+                      <span class="slot-lbl-isim">Sabahçı</span>
+                      <span class="slot-lbl-saat">08:00–16:30</span>
+                    </div>
+                  </div>
+                </td>
+                {% for i in range(7) %}
+                <td>
+                  <label class="toggle-label">
+                    <input type="checkbox" name="gun_{{ i }}_Sabahci"
+                           data-day="{{ i }}" data-slot="Sabahci"
+                           onchange="slotToggle(this)"
+                           {% if onceki_uygunluk.get(i, {}).get('Sabahci') %}checked{% endif %}>
+                    <span class="toggle-btn">✓</span>
+                  </label>
+                </td>
+                {% endfor %}
+              </tr>
+
+              {# Aracı satırı #}
+              <tr>
+                <td>
+                  <div class="slot-lbl">
+                    <span class="slot-bar2 r2-ara"></span>
+                    <div>
+                      <span class="slot-lbl-isim">Aracı</span>
+                      <span class="slot-lbl-saat">13:00–21:30</span>
+                    </div>
+                  </div>
+                </td>
+                {% for i in range(7) %}
+                <td>
+                  <label class="toggle-label">
+                    <input type="checkbox" name="gun_{{ i }}_Araci"
+                           data-day="{{ i }}" data-slot="Araci"
+                           onchange="slotToggle(this)"
+                           {% if onceki_uygunluk.get(i, {}).get('Araci') %}checked{% endif %}>
+                    <span class="toggle-btn">✓</span>
+                  </label>
+                </td>
+                {% endfor %}
+              </tr>
+
+              {# Kapanış satırı #}
+              <tr>
+                <td>
+                  <div class="slot-lbl">
+                    <span class="slot-bar2 r2-kapanis"></span>
+                    <div>
+                      <span class="slot-lbl-isim">Kapanış</span>
+                      <span class="slot-lbl-saat">16:30–01:00</span>
+                    </div>
+                  </div>
+                </td>
+                {% for i in range(7) %}
+                <td>
+                  <label class="toggle-label">
+                    <input type="checkbox" name="gun_{{ i }}_Kapanis"
+                           data-day="{{ i }}" data-slot="Kapanis"
+                           onchange="slotToggle(this)"
+                           {% if onceki_uygunluk.get(i, {}).get('Kapanis') %}checked{% endif %}>
+                    <span class="toggle-btn">✓</span>
+                  </label>
+                </td>
+                {% endfor %}
+              </tr>
+
+              {# OFF / İzin satırı #}
+              <tr class="off-row">
+                <td>
+                  <div class="slot-lbl">
+                    <span class="slot-bar2 r2-off"></span>
+                    <div>
+                      <span class="slot-lbl-isim" style="color:#f85149;">OFF / İzin</span>
+                      <span class="slot-lbl-saat">Tüm gün</span>
+                    </div>
+                  </div>
+                </td>
+                {% for i in range(7) %}
+                <td class="off-toggle">
+                  <label class="toggle-label">
+                    <input type="checkbox" name="gun_{{ i }}_OFF"
+                           data-day="{{ i }}" data-slot="OFF"
+                           onchange="slotToggle(this)"
+                           {% if onceki_uygunluk.get(i, {}).get('OFF') %}checked{% endif %}>
+                    <span class="toggle-btn">✕</span>
+                  </label>
+                </td>
+                {% endfor %}
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem; margin-top:1rem;">
+          <p style="font-size:.73rem; color:#8b949e; margin:0;">
+            <i class="bi bi-info-circle me-1" style="color:#34d399;"></i>
+            Hiç seçmediğin günler &ldquo;Uygun / Fark Etmez&rdquo; sayılır.
+            Aynı formu her hafta tekrar gönderebilirsin.
+          </p>
+          <button type="submit" class="btn-uygunluk">
+            <i class="bi bi-send me-2"></i>Haftalık Durumumu Gönder
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const DURUM_SINIF = {
-  'Fark Etmez':     'su-farketmez',
-  'Sadece Sabah':   'su-sabah',
-  'Sadece Ara':     'su-ara',
-  'Sadece Kapanış': 'su-kapanis',
-  'OFF İstiyorum':  'su-off',
-};
+function slotToggle(cb) {
+  const day  = cb.dataset.day;
+  const slot = cb.dataset.slot;
 
-function guncelle(i) {
-  const sel = document.getElementById('sel_' + i);
-  const inp = document.getElementById('not_' + i);
-  const val = sel.value;
-
-  // Renk sınıfını güncelle
-  sel.className = 'uygunluk-select w-100 ' + (DURUM_SINIF[val] || 'su-farketmez');
-
-  // Not kutusunu göster / gizle
-  if (val === 'Fark Etmez') {
-    inp.classList.add('dim');
-    inp.value = '';
-  } else {
-    inp.classList.remove('dim');
-    inp.placeholder = 'Nedenini belirtin (opsiyonel)…';
-    inp.focus();
+  if (slot === 'OFF' && cb.checked) {
+    // OFF seçildiyse o günün diğer slotlarını temizle
+    document.querySelectorAll(`input[type=checkbox][data-day="${day}"]`)
+      .forEach(el => { if (el.dataset.slot !== 'OFF') el.checked = false; });
+  } else if (slot !== 'OFF' && cb.checked) {
+    // Başka slot seçilince OFF'u temizle
+    const offCb = document.querySelector(`input[type=checkbox][data-day="${day}"][data-slot="OFF"]`);
+    if (offCb) offCb.checked = false;
   }
 }
-
-// Sayfa açılınca tüm satırları ilk hale getir
-for (let i = 0; i < 7; i++) { guncelle(i); }
 </script>
 </body>
 </html>
